@@ -1,56 +1,227 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <title>はじめてのアプリ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>簡単な日記帳</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 20px;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    input, textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .entry {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+
+    .entry-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .entry-date {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .entry-body {
+      white-space: pre-wrap;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .delete-btn {
+      background: #dc2626;
+      width: auto;
+      padding: 8px 14px;
+    }
+
+    .empty-message {
+      color: #666;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello World</h1>
-  <p>これが最初のWebアプリです</p></body>
-  
-<table border = "3">
-  <tr>
-    <th>あいうえお</th>
-    <th>かきくけこ</th>
-    <th>さしすせそ</th>
-  </tr>
-  <tr>
-    <th>たちつてと</th>
-    <th>なにぬねの</th>
-    <th>はひふへほ</th>
-  </tr>
- <tr>
-    <th>たちつてと</th>
-    <th>なにぬねの</th>
-    <th>はひふへほ</th>
-  </tr>
-   <tr>
-    <th>あいうえお</th>
-    <th>かきくけこ</th>
-    <th>さしすせそ</th>
-  </tr>
-  <tr>
-    <th>たちつてと</th>
-    <th>なにぬねの</th>
-    <th>はひふへほ</th>
-  </tr>
- <tr>
-    <th>たちつてと</th>
-    <th>なにぬねの</th>
-    <th>はひふへほ</th>
-  </tr>
-   <tr>
-    <th>あいうえお</th>
-    <th>かきくけこ</th>
-    <th>さしすせそ</th>
-  </tr>
-  <tr>
-    <th>たちつてと</th>
-    <th>なにぬねの</th>
-    <th>はひふへほ</th>
-  </tr>
- <tr>
-    <th>たちつてと</th>
-    <th>なにぬねの</th>
-    <th>はひふへほ</th>
-  </tr>
+  <div class="container">
+    <div class="card">
+      <h1>簡単な日記帳</h1>
+
+      <label for="diaryTitle">タイトル</label>
+      <input type="text" id="diaryTitle" placeholder="例：今日はよく寝た">
+
+      <label for="diaryDate">日付</label>
+      <input type="date" id="diaryDate">
+
+      <label for="diaryBody">本文</label>
+      <textarea id="diaryBody" placeholder="今日あったことを書いてください"></textarea>
+
+      <button onclick="saveDiary()">保存する</button>
+    </div>
+
+    <div class="card">
+      <h2>保存した日記</h2>
+      <div id="diaryList"></div>
+    </div>
+  </div>
+
+  <script>
+    function getDiaries() {
+      const diaries = localStorage.getItem("diaries");
+      return diaries ? JSON.parse(diaries) : [];
+    }
+
+    function setDiaries(diaries) {
+      localStorage.setItem("diaries", JSON.stringify(diaries));
+    }
+
+    function saveDiary() {
+      const titleInput = document.getElementById("diaryTitle");
+      const dateInput = document.getElementById("diaryDate");
+      const bodyInput = document.getElementById("diaryBody");
+
+      const title = titleInput.value.trim();
+      const date = dateInput.value;
+      const body = bodyInput.value.trim();
+
+      if (title === "" || date === "" || body === "") {
+        alert("タイトル・日付・本文をすべて入力してください");
+        return;
+      }
+
+      const diaries = getDiaries();
+
+      const newDiary = {
+        id: Date.now(),
+        title: title,
+        date: date,
+        body: body
+      };
+
+      diaries.unshift(newDiary);
+      setDiaries(diaries);
+
+      titleInput.value = "";
+      bodyInput.value = "";
+
+      renderDiaries();
+    }
+
+    function deleteDiary(id) {
+      const diaries = getDiaries();
+      const newDiaries = diaries.filter(function(diary) {
+        return diary.id !== id;
+      });
+
+      setDiaries(newDiaries);
+      renderDiaries();
+    }
+
+    function renderDiaries() {
+      const diaryList = document.getElementById("diaryList");
+      const diaries = getDiaries();
+
+      if (diaries.length === 0) {
+        diaryList.innerHTML = '<p class="empty-message">まだ日記はありません。</p>';
+        return;
+      }
+
+      diaryList.innerHTML = "";
+
+      diaries.forEach(function(diary) {
+        const entry = document.createElement("div");
+        entry.className = "entry";
+
+        entry.innerHTML = `
+          <div class="entry-title">${escapeHtml(diary.title)}</div>
+          <div class="entry-date">${escapeHtml(diary.date)}</div>
+          <div class="entry-body">${escapeHtml(diary.body)}</div>
+          <button class="delete-btn" onclick="deleteDiary(${diary.id})">削除</button>
+        `;
+
+        diaryList.appendChild(entry);
+      });
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/\n/g, "<br>");
+    }
+
+    window.onload = function() {
+      const dateInput = document.getElementById("diaryDate");
+      const today = new Date().toISOString().split("T")[0];
+      dateInput.value = today;
+
+      renderDiaries();
+    };
+  </script>
+</body>
 </html>
